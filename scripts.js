@@ -4,6 +4,7 @@ const API_URL = 'https://apis.is/company?name=';
  * Leit að fyrirtækjum á Íslandi gegnum apis.is
  */
 const program = (() => {
+  let companiesSection;
 
   function el(name, ...children) {
     const element = document.createElement(name);
@@ -31,25 +32,43 @@ const program = (() => {
     
   }
 
-  function fetch(searchString) {
+  function fetchData(searchString) {
     debugger;
     fetch(API_URL + searchString)
       .then((response) => {
-        if (!response.ok) {
-          throw Error('Villa!');
+        if (response.ok) {
+          debugger;
+          return response.json();
         }
-        return response.json();
+        debugger;
+        throw Error('Villa!');
       })
       .then((jsonResponse) => {
+        debugger;
         show(jsonResponse);
       })
       .catch((err) => console.error('Upp kom villa!', err));
   }
 
+  function getSearchString(e) {
+    e.preventDefault();
+    const input = e.target.querySelector('input');
+
+    // TODO - Leysa úr því hvað gerist með tóman streng
+
+    const search = input.value;
+    if (search === '') {
+      return;
+    }
+    input.setAttribute('placeholder', search);
+    input.value = '';
+    fetchData(search);
+  }
+
   function init(companies) {
-    const companiesSection = companies;
-    const search = companiesSection.target[0].value;
-    companiesSection.addEventListener('submit', fetch(search));
+    companiesSection = companies;
+    const search = companiesSection.querySelector('form');
+    search.addEventListener('submit', getSearchString);
   }
 
   return {
@@ -58,6 +77,6 @@ const program = (() => {
 })();
 
 document.addEventListener('DOMContentLoaded', () => {
-  const companies = document.querySelector('form');
+  const companies = document.querySelector('.search');
   program.init(companies);
 });
